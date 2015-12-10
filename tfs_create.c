@@ -1,79 +1,67 @@
 #include "tfs.h"
 
-
-//-------------------------------------------------------
-//Fonction permetant de savoir si le nom est déjà utilisé
-//Renvoie 0 si le fichier existe -1 sinon
-int exists(char *diskname){
-    struct stat s;
-    return stat(diskname, &s);
-}
-
 //-------------------------------------------------
 //Fonction permetant de recupérer une taille valide
-int giveSize(char *taille){
+int diskSize(char *taille){
 	int size;
 	size = atoi(taille);
 	while(size <= 0){
-		fprintf(stderr, "ERREUR: L'entier est trop petit ou ca n'est pas un entier\nSaisissez un nouvel entier \n");
+		fprintf(stderr, "Erreur l'entier l'entier est trop petit ou ca n'est pas un entier\nSaisissez un nouvel entier \n");
 		scanf("%d", &size);
 	}
 	return size;
 }
 
-//---------------------------------------------
-//Fonction permetant de recupérer un nom valide
-char * giveName(char *name){
-    while(exists(name) == 0){
-        fprintf(stderr, "ERREUR: Ce nom existe déjà \nSaisissez un nom valide\n");
-        scanf("%s", name);
-        name = strcat(name, ".tfs");
-    }
-    return name;
-}
 
 //---------------------------------
 //Main permetant de créer le disque
 int main(int argc,char *argv[]){
-	int diskSize = 0;
+	int taille = 0;
 	char *diskName = "disk";
 	FILE *fichier;
 
-	if (strcmp(argv[1], "-s") != 0){	//Si l'option n'est pas "-s" on affiche une erreur
-		fprintf(stderr, "ERREUR DE SYNTAXE: Il faut specifier le nombre de blocs constituant le disque (option -s) \n");
-	}
-    
-    else {
-        
+	if (strcmp(argv[1], "-s") != 0)
+	{					//Si l'option n'est pas "-s" on affiche une erreur
+		fprintf(stderr, "Erreur l'option %s n'existe pas \n",argv[1]);
+	}else
+	{
 		if(argc >= 3)
-        {
-			if (argc > 3){	//L'utilisateur a choisi un nom au disque
+		{			
+			if (argc >3)			//Il y a le nom du disque
+			{			
 				diskName = strcat(argv[3],".tfs");
-			}
-            
-            else {
+			}else
+			{	
 				diskName = "disk.tfs";
 			}
-            
-			diskSize = giveSize(argv[2]);
+			/*
+			if (argc >3)			//Il y a le nom du disque
+			{			
+				diskName = argv[3];
+			}else
+			{	
+				diskName = "disk"; //pointeur dans une region de mémoire ou l'on peut pas ecrire utiliser strcopy
+			}
+			diskName = strcat(diskName, ".tfs");
+			*/
+			
+			taille = diskSize(argv[2]);
 			diskName = giveName(diskName);
 			fichier = fopen(diskName, "w+");
-			truncate(diskName, TAILLE_BLOC * diskSize);		//Permet de donner une taille x * 1024 au fichier
+			truncate(diskName, 1024*taille);		//Permet de donner une taille x * 1024 au fichier		
 
 
-            //------------------------------------------------------------------------------------------------------
-            //On a un fichier diskName.tfs crée avec une taille de 1024*taille soit taille bloc de 1024 octet chacun
+//----------------------------------------------------------------------------------------------------
+//On a un fichier diskName.tfs crée avec une taille de 1024*taille soit taille bloc de 1024 octet chacun
 			
-			fputc(htole32(diskSize), fichier);  //taille du disque
+			fputc(htole32(taille), fichier); //taille du disque
 			fputc(htole32(1), fichier);			// 1 seul partition au départ
-			fputc(htole32(diskSize),fichier);
+			fputc(htole32(taille),fichier);
 			printf("Le disque %s a été créé avec succès \n", diskName);
 			
+		}else			//Il manque des argument dans l'appel a la commande
+		{	
+			fprintf(stderr, "Erreur il n'y a pas assez d'argument");		
 		}
-        
-        else {	//Il manque des argument dans l'appel a la commande
-			fprintf(stderr, "ERREUR DE SYNTAXE: il n'y a pas assez d'argument");
-		}
-        
 	}
 }
