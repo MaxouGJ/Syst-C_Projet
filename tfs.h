@@ -6,26 +6,25 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-
+#define TAILLE_BLOC 1024
 
 //-------------------------------------------------------
-//Fonction permetant de savoir si le nom est déjà utilisé
- 
-int exists(char *diskname){
-	struct stat s;
-	return stat(diskname, &s);				// Renvoie 0 si le fichier existe -1 sinon 
-}
+// Definition des structures Disk et Bloc
+// ---
+//typedef uint32_t 	uint_least32_t;
 
-//---------------------------------------------
-//Fonction permetant de recupérer un nom valide
-char * giveName(char *name){	
-	while(exists(name) == 0){
-		fprintf(stderr, "Erreur le nom existe déjà \nSaisissez un nom valide\n");
-		scanf("%s", name);		
-		name = strcat(name, ".tfs");
-	}
-	return name;
-}
+typedef struct Disk Disk;
+struct Disk {
+    int disk_id;    //identité du disque
+    char* name;     //nom du disque
+    int size;       //nbr de blocks constituant le disque
+};
+
+typedef struct Block Block;
+struct Block {
+   	//uint32_t num;       //numero du bloc
+    const int taille;   //taille du bloc
+};
 
 
 /* _____________________________________________________ */
@@ -44,4 +43,12 @@ error write_block(disk_id id, block b, uint32_t num);	// Permet d'écrire sur le
 error sync_disk(disk_id id);													// Voir annexe
 error stop_disk(disk_id id);													// Terminer une session de travail
 */
+
+//-------------------------------------------------------
+//Fonction permetant de savoir si le nom est déjà utilisé
+//Renvoie 0 si le fichier existe -1 sinon
+int exists(char *diskname){
+    struct stat s;
+    return stat(diskname, &s);
+}
 
