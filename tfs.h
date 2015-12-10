@@ -1,4 +1,4 @@
-#include <endian.h>
+#include <machine/endian.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,26 +6,24 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-
+#define TAILLE_BLOC 1024
 
 //-------------------------------------------------------
-//Fonction permetant de savoir si le nom est déjà utilisé
- 
-int exists(char *diskname){
-	struct stat s;
-	return stat(diskname, &s);				// Renvoie 0 si le fichier existe -1 sinon 
-}
+// Definition des structures Disk et Bloc
+// ---
 
-//---------------------------------------------
-//Fonction permetant de recupérer un nom valide
-char * giveName(char *name){	
-	while(exists(name) == 0){
-		fprintf(stderr, "Erreur le nom existe déjà \nSaisissez un nom valide\n");
-		scanf("%s", name);		
-		name = strcat(name, ".tfs");
-	}
-	return name;
-}
+typedef struct Disk Disk;
+struct Disk {
+    int disk_id;    //identité du disque
+    char* name;     //nom du disque
+    int size;       //nbr de blocks constituant le disque
+};
+
+typedef struct Block Block;
+struct Block {
+    uint32_t num;       //numero du bloc
+    const int taille;   //taille du bloc
+};
 
 
 /* _____________________________________________________ */
